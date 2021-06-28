@@ -24,9 +24,20 @@ class FormatTime
       formatted_response(404, headers, ["404\n"])
     elsif request_params.nil?
       formatted_response(400, headers, ["invalid_format_name\n"])
+    else
+      formatter_constructor(request_params, headers)
     end
 
-    formatter = TimeFormatter.new(request_params)
+    
+  end
+
+  def formatted_response(status, headers, body)
+    response = Rack::Response.new(body, status, headers)
+    response.finish
+  end
+
+  def formatter_constructor(params, headers)
+    formatter = TimeFormatter.new(params)
     if formatter.valid_params?
       body = formatter.time
       status = 200
@@ -36,10 +47,5 @@ class FormatTime
       status = 400
     end
     formatted_response(status, headers, ["#{body}\n"])
-  end
-
-  def formatted_response(status, headers, body)
-    response = Rack::Response.new(body, status, headers)
-    response.finish
   end
 end
